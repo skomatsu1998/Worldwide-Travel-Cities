@@ -5,11 +5,12 @@ from worldwide_travel_cities_dataset;
 
 
 select 
+	id,
 	key::int as _month,
 	(value ->> 'avg')::numeric as average,
 	(value ->> 'max')::numeric as maximum,
 	(value ->> 'min')::numeric as minimum
-from worldwide_travel_cities_dataset, 
+from "Original".worldwide_travel_cities_dataset, 
  jsonb_each(avg_temp_monthly::jsonb) as t(key, value); 
 
 drop table if exists temperature_info;
@@ -90,27 +91,53 @@ from worldwide_travel_cities_dataset w
 join temperature_info t on t.id = w.id;
 
 
--- categorising into each type of travel destination 
-
--- nature_destination
-create table actual.nature_destination as 
+-- labeling columns 
+create table actual.detailed_view as 
 select *
-from temporary_table_temperature_inc
-where wellness > 2 and nature >2 and adventure > 2;
+from "Original".temporary_table_temperature_inc;
 
--- nature_destination
-create table actual.cultural_destination as 
+-- adding new columns to describe the destination south or north
+alter table actual.detailed_view 
+add North_or_South VARCHAR, 
+
 select *
-from temporary_table_temperature_inc
-where culture > 3 and cuisine >3 ;
+from actual.detailed_view ;
 
--- nature_destination
-create table actual.leisure_destination as 
+-- adding new columns to describe the destination south or north
+alter table actual.detailed_view 
+add Nature_destination VARCHAR, 
+add Cultural_destination VARCHAR, 
+add Leisure_destination VARCHAR;
+
+
+-- also adding if the destinations with different characteristics 
+update actual.detailed_view 
+set North_or_South = case
+	when longitude > 0 then 'North'
+	when longitude < 0 then 'South'
+end,
+
+Nature_destination = case
+	when wellness > 3 and nature > 3 and adventure > 3 then 'Yes' else 'No' 
+	end,
+
+Cultural_destination = case
+	when culture > 3 and cuisine > 3 then 'Yes' else 'no' 
+	end,
+
+Leisure_destination = case
+	when urban  > 3 and nightlife > 3 then 'Yes' else 'no' end;
+
+
+
+
 select *
-from temporary_table_temperature_inc
-where urban > 3 and nightlife >3 ;
+from actual.detailed_view ;
 
--- beaches did not get included in the consideration 
+
+
+select *
+from actual.detailed_view ;
 
 
 
