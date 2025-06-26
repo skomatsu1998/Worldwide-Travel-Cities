@@ -134,10 +134,78 @@ Leisure_destination = case
 select *
 from actual.detailed_view ;
 
+-- calculating average score for all three destination categories 
+
+
+alter table actual.detailed_view 
+add top_nature_average numeric,
+add top_culture_average numeric,
+add top_leisure_average numeric;
+
+-- adding the average score for those categories 
+update actual.detailed_view 
+set 
+top_nature_average = case
+	when nature_destination = 'Yes' then (wellness + nature + adventure) / 3
+	else 0
+	end,
+
+top_culture_average = case
+	when cultural_destination = 'Yes' then (culture + cuisine) / 2 
+	else 0
+	end,
+
+top_leisure_average = case 
+	when leisure_destination = 'Yes' then (urban + nightlife) / 2 
+	else 0
+end;
+
 
 
 select *
-from actual.detailed_view ;
+from actual.detailed_view dv;
+
+--XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+--                                 Creating a new view (nature)
+--XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+create table actual.Top_nature_country as 
+
+with nature_country as (
+select country, avg( wellness + nature + adventure) / 3 as average_nature
+from actual.detailed_view 
+group by country)
+
+select country, average_nature,
+Rank() over (order by average_nature desc) as rank
+from nature_country;
+
+--XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+--                                 Creating a new view (cultural)
+--XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+create table actual.Top_cultural_country as 
+
+with cultural_country as (
+select country, avg( culture + cuisine) / 2 as average_culture
+from actual.detailed_view 
+group by country)
+
+select country, average_culture,
+Rank() over (order by average_culture desc) as rank
+from cultural_country;
+
+--XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+--                                 Creating a new view (cultural)
+--XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+create table  actual.Top_leisure_country as 
+
+with leisure_country as (
+select country, avg( urban + nightlife) / 2 as average_leisure
+from actual.detailed_view 
+group by country)
+
+select country, average_leisure,
+Rank() over (order by average_leisure desc) as rank
+from leisure_country;
 
 
 
