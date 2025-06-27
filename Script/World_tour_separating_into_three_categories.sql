@@ -208,5 +208,6 @@ Rank() over (order by average_leisure desc) as rank
 from leisure_country;
 
 
-
+select *
+from actual.Top_nature_country;
 
