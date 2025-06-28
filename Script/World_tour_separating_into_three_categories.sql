@@ -207,7 +207,320 @@ select country, average_leisure,
 Rank() over (order by average_leisure desc) as rank
 from leisure_country;
 
+-- cross check with the bargraph Top Countries leisure 
+with average_of_nightife_n_urban as(
+select  country, AVG(nightlife + urban) as average
+from actual.detailed_view 
+group by country)
+
+select 
+country,  
+average,
+rank() over (order by average desc)
+from average_of_nightife_n_urban;
+
+--XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+--                                 adding the temperature, affordability and short description (nature)
+--XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+with temporary_affordability_table as(
+select *
+from (
+select *,
+rank() over (partition by country order by _count desc) as rank
+from (
+select country, budget_level, count(budget_level) as _count
+from actual.detailed_view
+group by country, budget_level
+)sub)
+where rank = 1
+) 
+
+-- joining table 
+select tn.country, tn.average_nature, tn.rank, tmp.budget_level
+from actual.Top_nature_country tn
+left join temporary_affordability_table tmp on tn.country = tmp.country;
+
+-- update the table for each of all
+-- nature table
+alter table actual.Top_nature_country
+add budget_level varchar;
+
+
+UPDATE actual.Top_nature_country tn
+SET budget_level = tmp.budget_level
+FROM (
+  SELECT *
+  FROM (
+    SELECT *,
+           RANK() OVER (PARTITION BY country ORDER BY _count DESC) AS rank
+    FROM (
+      SELECT country, budget_level, COUNT(budget_level) AS _count
+      FROM actual.detailed_view
+      GROUP BY country, budget_level
+    ) sub
+  ) ranked
+  WHERE rank = 1
+) tmp
+WHERE tn.country = tmp.country;
+
+-- cultural table
+alter table actual.Top_cultural_country
+add budget_level varchar;
+
+
+UPDATE actual.Top_cultural_country tn
+SET budget_level = tmp.budget_level
+FROM (
+  SELECT *
+  FROM (
+    SELECT *,
+           RANK() OVER (PARTITION BY country ORDER BY _count DESC) AS rank
+    FROM (
+      SELECT country, budget_level, COUNT(budget_level) AS _count
+      FROM actual.detailed_view
+      GROUP BY country, budget_level
+    ) sub
+  ) ranked
+  WHERE rank = 1
+) tmp
+WHERE tn.country = tmp.country;
+
+
+-- leisure table
+alter table actual.Top_leisure_country
+add budget_level varchar;
+
+
+UPDATE actual.Top_leisure_country tn
+SET budget_level = tmp.budget_level
+FROM (
+  SELECT *
+  FROM (
+    SELECT *,
+           RANK() OVER (PARTITION BY country ORDER BY _count DESC) AS rank
+    FROM (
+      SELECT country, budget_level, COUNT(budget_level) AS _count
+      FROM actual.detailed_view
+      GROUP BY country, budget_level
+    ) sub
+  ) ranked
+  WHERE rank = 1
+) tmp
+WHERE tn.country = tmp.country;
+
+--XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+--                           adding the temperature data as well
+--XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 select *
-from actual.Top_nature_country;
+from actual.detailed_view dv ;
+-- adding new columns for temperature 
+ALTER TABLE actual.top_nature_country
+ADD COLUMN jan_avg FLOAT,
+ADD COLUMN feb_avg FLOAT,
+ADD COLUMN mar_avg FLOAT,
+ADD COLUMN apr_avg FLOAT,
+ADD COLUMN may_avg FLOAT,
+ADD COLUMN jun_avg FLOAT,
+ADD COLUMN jul_avg FLOAT,
+ADD COLUMN aug_avg FLOAT,
+ADD COLUMN sep_avg FLOAT,
+ADD COLUMN oct_avg FLOAT,
+ADD COLUMN nov_avg FLOAT,
+ADD COLUMN dec_avg FLOAT,
+ADD COLUMN jan_min FLOAT,
+ADD COLUMN feb_min FLOAT,
+ADD COLUMN mar_min FLOAT,
+ADD COLUMN apr_min FLOAT,
+ADD COLUMN may_min FLOAT,
+ADD COLUMN jun_min FLOAT,
+ADD COLUMN jul_min FLOAT,
+ADD COLUMN aug_min FLOAT,
+ADD COLUMN sep_min FLOAT,
+ADD COLUMN oct_min FLOAT,
+ADD COLUMN nov_min FLOAT,
+ADD COLUMN dec_min FLOAT,
+ADD COLUMN jan_max FLOAT,
+ADD COLUMN feb_max FLOAT,
+ADD COLUMN mar_max FLOAT,
+ADD COLUMN apr_max FLOAT,
+ADD COLUMN may_max FLOAT,
+ADD COLUMN jun_max FLOAT,
+ADD COLUMN jul_max FLOAT,
+ADD COLUMN aug_max FLOAT,
+ADD COLUMN sep_max FLOAT,
+ADD COLUMN oct_max FLOAT,
+ADD COLUMN nov_max FLOAT,
+ADD COLUMN dec_max FLOAT;
 
+ALTER TABLE actual.top_cultural_country
+ADD COLUMN jan_avg FLOAT,
+ADD COLUMN feb_avg FLOAT,
+ADD COLUMN mar_avg FLOAT,
+ADD COLUMN apr_avg FLOAT,
+ADD COLUMN may_avg FLOAT,
+ADD COLUMN jun_avg FLOAT,
+ADD COLUMN jul_avg FLOAT,
+ADD COLUMN aug_avg FLOAT,
+ADD COLUMN sep_avg FLOAT,
+ADD COLUMN oct_avg FLOAT,
+ADD COLUMN nov_avg FLOAT,
+ADD COLUMN dec_avg FLOAT,
+ADD COLUMN jan_min FLOAT,
+ADD COLUMN feb_min FLOAT,
+ADD COLUMN mar_min FLOAT,
+ADD COLUMN apr_min FLOAT,
+ADD COLUMN may_min FLOAT,
+ADD COLUMN jun_min FLOAT,
+ADD COLUMN jul_min FLOAT,
+ADD COLUMN aug_min FLOAT,
+ADD COLUMN sep_min FLOAT,
+ADD COLUMN oct_min FLOAT,
+ADD COLUMN nov_min FLOAT,
+ADD COLUMN dec_min FLOAT,
+ADD COLUMN jan_max FLOAT,
+ADD COLUMN feb_max FLOAT,
+ADD COLUMN mar_max FLOAT,
+ADD COLUMN apr_max FLOAT,
+ADD COLUMN may_max FLOAT,
+ADD COLUMN jun_max FLOAT,
+ADD COLUMN jul_max FLOAT,
+ADD COLUMN aug_max FLOAT,
+ADD COLUMN sep_max FLOAT,
+ADD COLUMN oct_max FLOAT,
+ADD COLUMN nov_max FLOAT,
+ADD COLUMN dec_max FLOAT;
+
+ALTER TABLE actual.top_leisure_country
+ADD COLUMN jan_avg FLOAT,
+ADD COLUMN feb_avg FLOAT,
+ADD COLUMN mar_avg FLOAT,
+ADD COLUMN apr_avg FLOAT,
+ADD COLUMN may_avg FLOAT,
+ADD COLUMN jun_avg FLOAT,
+ADD COLUMN jul_avg FLOAT,
+ADD COLUMN aug_avg FLOAT,
+ADD COLUMN sep_avg FLOAT,
+ADD COLUMN oct_avg FLOAT,
+ADD COLUMN nov_avg FLOAT,
+ADD COLUMN dec_avg FLOAT,
+ADD COLUMN jan_min FLOAT,
+ADD COLUMN feb_min FLOAT,
+ADD COLUMN mar_min FLOAT,
+ADD COLUMN apr_min FLOAT,
+ADD COLUMN may_min FLOAT,
+ADD COLUMN jun_min FLOAT,
+ADD COLUMN jul_min FLOAT,
+ADD COLUMN aug_min FLOAT,
+ADD COLUMN sep_min FLOAT,
+ADD COLUMN oct_min FLOAT,
+ADD COLUMN nov_min FLOAT,
+ADD COLUMN dec_min FLOAT,
+ADD COLUMN jan_max FLOAT,
+ADD COLUMN feb_max FLOAT,
+ADD COLUMN mar_max FLOAT,
+ADD COLUMN apr_max FLOAT,
+ADD COLUMN may_max FLOAT,
+ADD COLUMN jun_max FLOAT,
+ADD COLUMN jul_max FLOAT,
+ADD COLUMN aug_max FLOAT,
+ADD COLUMN sep_max FLOAT,
+ADD COLUMN oct_max FLOAT,
+ADD COLUMN nov_max FLOAT,
+ADD COLUMN dec_max FLOAT;
+
+-- adding to the tables 
+UPDATE actual.top_leisure_country tn
+SET 
+  jan_avg = sub.jan_avg,
+  feb_avg = sub.feb_avg,
+  mar_avg = sub.mar_avg,
+  apr_avg = sub.apr_avg,
+  may_avg = sub.may_avg,
+  jun_avg = sub.jun_avg,
+  jul_avg = sub.jul_avg,
+  aug_avg = sub.aug_avg,
+  sep_avg = sub.sep_avg,
+  oct_avg = sub.oct_avg,
+  nov_avg = sub.nov_avg,
+  dec_avg = sub.dec_avg,
+
+  jan_min = sub.jan_min,
+  feb_min = sub.feb_min,
+  mar_min = sub.mar_min,
+  apr_min = sub.apr_min,
+  may_min = sub.may_min,
+  jun_min = sub.jun_min,
+  jul_min = sub.jul_min,
+  aug_min = sub.aug_min,
+  sep_min = sub.sep_min,
+  oct_min = sub.oct_min,
+  nov_min = sub.nov_min,
+  dec_min = sub.dec_min,
+
+  jan_max = sub.jan_max,
+  feb_max = sub.feb_max,
+  mar_max = sub.mar_max,
+  apr_max = sub.apr_max,
+  may_max = sub.may_max,
+  jun_max = sub.jun_max,
+  jul_max = sub.jul_max,
+  aug_max = sub.aug_max,
+  sep_max = sub.sep_max,
+  oct_max = sub.oct_max,
+  nov_max = sub.nov_max,
+  dec_max = sub.dec_max
+FROM (
+  SELECT 
+    country, 
+    -- Averages
+    AVG(january_avg) AS jan_avg, 
+    AVG(february_avg) AS feb_avg,
+    AVG(march_avg) AS mar_avg,
+    AVG(april_avg) AS apr_avg,
+    AVG(may_avg) AS may_avg,
+    AVG(june_avg) AS jun_avg,
+    AVG(july_avg) AS jul_avg,
+    AVG(august_avg) AS aug_avg,
+    AVG(september_avg) AS sep_avg,
+    AVG(october_avg) AS oct_avg,
+    AVG(november_avg) AS nov_avg,
+    AVG(december_avg) AS dec_avg,
+    
+    -- Minimums
+    MIN(january_min) AS jan_min,
+    MIN(february_min) AS feb_min,
+    MIN(march_min) AS mar_min,
+    MIN(april_min) AS apr_min,
+    MIN(may_min) AS may_min,
+    MIN(june_min) AS jun_min,
+    MIN(july_min) AS jul_min,
+    MIN(august_min) AS aug_min,
+    MIN(september_min) AS sep_min,
+    MIN(october_min) AS oct_min,
+    MIN(november_min) AS nov_min,
+    MIN(december_min) AS dec_min,
+    
+    -- Maximums
+    MAX(january_max) AS jan_max,
+    MAX(february_max) AS feb_max,
+    MAX(march_max) AS mar_max,
+    MAX(april_max) AS apr_max,
+    MAX(may_max) AS may_max,
+    MAX(june_max) AS jun_max,
+    MAX(july_max) AS jul_max,
+    MAX(august_max) AS aug_max,
+    MAX(september_max) AS sep_max,
+    MAX(october_max) AS oct_max,
+    MAX(november_max) AS nov_max,
+    MAX(december_max) AS dec_max
+
+  FROM actual.detailed_view dv 
+  GROUP BY country
+) sub
+WHERE tn.country = sub.country;
+
+
+select *
+from actual.top_leisure_country tnc ;
