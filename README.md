@@ -31,20 +31,20 @@ The dataset contains structured information about global holiday destinations en
   - Budget (most affordable)
   - Mid-range (moderate)
   - Luxury (most expensive)
--  **Free-text Descriptions** summarizing key features of each location
+-  **Free-text Descriptions** summarising key features of each location
 
 ---
 
 ##  SQL Analysis Summary
 
 ### Data Preparation
-- Parsed monthly temperature JSON into a normalized table (`temperature_info`)
+- Parsed monthly temperature JSON into a normalised table (`temperature_info`)
 - Calculated average, min, and max monthly temperatures per destination
 
 ###  Data Integration
 - Joined the temperature data with the main destination dataset to create a `detailed_view` table
 
-### Categorization Logic
+### Categorisation Logic
 Added classification flags using SQL logic:
 - **Nature Destination**: Yes if `Wellness`, `Nature`, and `Adventure` > 3
 - **Cultural Destination**: Yes if `Culture` and `Cuisine` > 3
@@ -77,7 +77,7 @@ Power BI dashboards include:
 - Affordability breakdowns
 - Strategic destination recommendations
 
->  Final presentation includes PowerPoint screenshots and summarized visuals.
+>  Final presentation includes PowerPoint screenshots and summarised visuals.
 
 ---
 
